@@ -1,12 +1,19 @@
-const { error } = require("console");
 const fs = require("fs");
 const inquirer = require("inquirer");
+const shapeChoice = require("./lib/shapes.js");
 
 const questions = [
   {
     type: "input",
     message: "Enter 3 characters for your logo: ",
     name: "characters",
+    validate: function (input) {
+      if (input.length === 3) {
+        return true;
+      } else {
+        return "Please enter exactly 3 characters.";
+      }
+    },
   },
   {
     type: "input",
@@ -37,26 +44,29 @@ function writeToFile(fileName, data) {
       console.error(err);
       return;
     }
-    console.log(`File ${fileName} has been created!`)
+    console.log(`File ${fileName} has been created!`);
   });
 }
 
 function createLogo(answers) {
   return (
     `<svg version="1.1" width="300" height="200" xmlns="http://www.w3.org/2000/svg">\n` +
-    `<circle cx="150" cy="100" r="80" fill="${answers.shapeColor}" />\n` +
+    `${shapeChoice(answers)}\n` +
     `<text x="150" y="125" font-size="60" text-anchor="middle" fill="${answers.textColor}">${answers.characters}</text>\n` +
     `</svg>`
   );
 }
 
 function init() {
-  inquirer.prompt(questions).then((answers) => {
-    const content = createLogo(answers);
-    writeToFile(`./output/${answers.title}.svg`, content);
-  }).catch((error) => {
-    console.error('Error occured:', error);
-  })
-};
+  inquirer
+    .prompt(questions)
+    .then((answers) => {
+      const content = createLogo(answers);
+      writeToFile(`./output/${answers.title}.svg`, content);
+    })
+    .catch((error) => {
+      console.error("Error occured:", error);
+    });
+}
 
 init();
